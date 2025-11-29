@@ -70,6 +70,8 @@ The app will open automatically in your browser at `http://localhost:8501`
 
 For convenience, Windows users can simply double-click [run.bat](run.bat) to start the application (requires Python to be installed).
 
+**Important**: If you encounter installation errors on Windows, please check [WINDOWS_INSTALL.md](WINDOWS_INSTALL.md) for troubleshooting solutions.
+
 ## Usage
 
 1. **Upload PDF** - Click to select your PDF file

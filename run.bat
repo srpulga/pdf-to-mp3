@@ -26,12 +26,25 @@ echo Verificando dependencias...
 python -c "import streamlit" >nul 2>&1
 if errorlevel 1 (
     echo [AVISO] Dependencias nao encontradas.
-    echo Instalando dependencias...
-    pip install -r requirements.txt
+    echo.
+    echo Atualizando pip e instalando dependencias...
+    python -m pip install --upgrade pip setuptools wheel
+    echo.
+    echo Instalando dependencias (pode demorar alguns minutos)...
+    pip install -r requirements.txt --only-binary :all:
     if errorlevel 1 (
-        echo [ERRO] Falha ao instalar dependencias!
-        pause
-        exit /b 1
+        echo.
+        echo [AVISO] Tentativa com pacotes pre-compilados falhou.
+        echo Tentando instalacao padrao...
+        pip install -r requirements.txt
+        if errorlevel 1 (
+            echo.
+            echo [ERRO] Falha ao instalar dependencias!
+            echo.
+            echo Consulte o arquivo WINDOWS_INSTALL.md para solucoes.
+            pause
+            exit /b 1
+        )
     )
 )
 
