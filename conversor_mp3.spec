@@ -4,6 +4,7 @@ PyInstaller spec file para o Conversor de Midia MP3
 Usa modo --onedir para compatibilidade com Streamlit
 """
 
+import os
 import sys
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules, copy_metadata
 
@@ -75,7 +76,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='assets/icon.ico' if sys.platform == 'win32' else ('assets/icon.icns' if sys.platform == 'darwin' else None),
+    icon='assets/icon.ico' if sys.platform == 'win32' else ('assets/icon.icns' if sys.platform == 'darwin' and os.path.exists('assets/icon.icns') else None),
 )
 
 coll = COLLECT(
@@ -93,7 +94,7 @@ if sys.platform == 'darwin':
     app = BUNDLE(
         coll,
         name='ConversorMP3.app',
-        icon='assets/icon.icns',
+        icon='assets/icon.icns' if os.path.exists('assets/icon.icns') else None,
         bundle_identifier='com.conversormp3.app',
         info_plist={
             'CFBundleShortVersionString': '1.0.0',

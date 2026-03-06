@@ -40,6 +40,22 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
+      # Gerar icns ANTES do PyInstaller (macOS precisa do icon.icns no build)
+      - name: Generate macOS icon
+        if: runner.os == 'macOS'
+        run: |
+          ICONSET="assets/icon.iconset"
+          mkdir -p "$ICONSET"
+          sips -z 16 16     assets/icon.png --out "$ICONSET/icon_16x16.png"
+          sips -z 32 32     assets/icon.png --out "$ICONSET/icon_16x16@2x.png"
+          sips -z 32 32     assets/icon.png --out "$ICONSET/icon_32x32.png"
+          sips -z 64 64     assets/icon.png --out "$ICONSET/icon_32x32@2x.png"
+          sips -z 128 128   assets/icon.png --out "$ICONSET/icon_128x128.png"
+          sips -z 256 256   assets/icon.png --out "$ICONSET/icon_128x128@2x.png"
+          sips -z 256 256   assets/icon.png --out "$ICONSET/icon_256x256.png"
+          iconutil -c icns "$ICONSET" -o assets/icon.icns
+          rm -rf "$ICONSET"
+
       - name: Build with PyInstaller
         run: pyinstaller conversor_mp3.spec --noconfirm
 
@@ -71,21 +87,6 @@ jobs:
           path: installers/output/*.deb
 
       # ===== MACOS =====
-      - name: Generate macOS icon
-        if: runner.os == 'macOS'
-        run: |
-          ICONSET="assets/icon.iconset"
-          mkdir -p "$ICONSET"
-          sips -z 16 16     assets/icon.png --out "$ICONSET/icon_16x16.png"
-          sips -z 32 32     assets/icon.png --out "$ICONSET/icon_16x16@2x.png"
-          sips -z 32 32     assets/icon.png --out "$ICONSET/icon_32x32.png"
-          sips -z 64 64     assets/icon.png --out "$ICONSET/icon_32x32@2x.png"
-          sips -z 128 128   assets/icon.png --out "$ICONSET/icon_128x128.png"
-          sips -z 256 256   assets/icon.png --out "$ICONSET/icon_128x128@2x.png"
-          sips -z 256 256   assets/icon.png --out "$ICONSET/icon_256x256.png"
-          iconutil -c icns "$ICONSET" -o assets/icon.icns
-          rm -rf "$ICONSET"
-
       - name: Build .dmg
         if: runner.os == 'macOS'
         run: |
