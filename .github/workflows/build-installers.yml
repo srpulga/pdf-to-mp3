@@ -1,0 +1,120 @@
+name: Build Installers
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: windows-installer
+            build_script: windows
+          - os: ubuntu-22.04
+            artifact: linux-deb
+            build_script: linux
+          - os: macos-13
+            artifact: macos-dmg
+            build_script: macos
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build with PyInstaller
+        run: pyinstaller conversor_mp3.spec --noconfirm
+
+      # ===== WINDOWS =====
+      - name: Build Windows Installer
+        if: runner.os == 'Windows'
+        run: |
+          choco install innosetup -y
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installers\windows\installer.iss
+        shell: pwsh
+
+      - name: Upload Windows Installer
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: installers/output/ConversorMP3_Setup_*.exe
+
+      # ===== LINUX =====
+      - name: Build .deb package
+        if: runner.os == 'Linux'
+        run: bash installers/linux/build_deb.sh
+
+      - name: Upload Linux .deb
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: installers/output/*.deb
+
+      # ===== MACOS =====
+      - name: Generate macOS icon
+        if: runner.os == 'macOS'
+        run: |
+          ICONSET="assets/icon.iconset"
+          mkdir -p "$ICONSET"
+          sips -z 16 16     assets/icon.png --out "$ICONSET/icon_16x16.png"
+          sips -z 32 32     assets/icon.png --out "$ICONSET/icon_16x16@2x.png"
+          sips -z 32 32     assets/icon.png --out "$ICONSET/icon_32x32.png"
+          sips -z 64 64     assets/icon.png --out "$ICONSET/icon_32x32@2x.png"
+          sips -z 128 128   assets/icon.png --out "$ICONSET/icon_128x128.png"
+          sips -z 256 256   assets/icon.png --out "$ICONSET/icon_128x128@2x.png"
+          sips -z 256 256   assets/icon.png --out "$ICONSET/icon_256x256.png"
+          iconutil -c icns "$ICONSET" -o assets/icon.icns
+          rm -rf "$ICONSET"
+
+      - name: Build .dmg
+        if: runner.os == 'macOS'
+        run: |
+          brew install create-dmg
+          bash installers/macos/build_dmg.sh
+
+      - name: Upload macOS .dmg
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: installers/output/*.dmg
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            artifacts/windows-installer/*
+            artifacts/linux-deb/*
+            artifacts/macos-dmg/*

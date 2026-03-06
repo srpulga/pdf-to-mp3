@@ -25,7 +25,7 @@ MANIFEST
 
 # PyInstaller
 *.manifest
-*.spec
+# Nota: conversor_mp3.spec e versionado (nao ignorar)
 
 # Virtual Environment
 venv/
@@ -96,6 +96,9 @@ README.old.md
 .Python
 build/
 dist/
+
+# Installer output
+installers/output/
 
 # Documentation builds
 docs/_build/

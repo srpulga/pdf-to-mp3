@@ -1,0 +1,12 @@
+Package: conversor-mp3
+Version: 1.0.0
+Section: sound
+Priority: optional
+Architecture: amd64
+Depends: libgl1, libglib2.0-0
+Maintainer: Conversor MP3 <contato@conversormp3.com>
+Description: Conversor de PDF para MP3
+ Converte arquivos PDF em audio MP3 usando vozes neurais
+ de alta qualidade em Portugues Brasileiro.
+ Utiliza Microsoft Edge TTS com 10 vozes disponiveis.
+Homepage: https://github.com/seu-usuario/pdf-to-mp3

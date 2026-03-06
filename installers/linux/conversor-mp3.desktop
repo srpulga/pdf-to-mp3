@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Conversor MP3
+Comment=Converte PDFs em audio MP3 com vozes neurais
+Exec=/usr/bin/conversor-mp3
+Icon=conversor-mp3
+Terminal=true
+Type=Application
+Categories=AudioVideo;Audio;Utility;
+Keywords=pdf;mp3;audio;converter;tts;

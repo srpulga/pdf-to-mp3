@@ -2,8 +2,8 @@
 
 <div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.7%2B-blue)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.29-red)
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.38-red)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 
@@ -21,14 +21,14 @@ PDF to MP3 Converter is a web application that transforms PDF documents into nat
 
 <div align="center">
 
-### Nova Conversão
-![Nova Conversão](images/nova-conversao.png)
+### Nova Conversao
+![Nova Conversao](images/nova-conversao.png)
 
-### Fila de Conversões
-![Fila de Conversões](images/fila-de-conversoes.png)
+### Fila de Conversoes
+![Fila de Conversoes](images/fila-de-conversoes.png)
 
-### Histórico de Conversões
-![Histórico de Conversões](images/historico-de-conversoes.png)
+### Historico de Conversoes
+![Historico de Conversoes](images/historico-de-conversoes.png)
 
 </div>
 
@@ -42,15 +42,25 @@ PDF to MP3 Converter is a web application that transforms PDF documents into nat
 - **Instant Download** - Download MP3 files directly from the browser
 - **Conversion History** - Keep track of all your conversions
 - **Cross-platform** - Works on Windows, macOS, and Linux
+- **Standalone Installers** - No Python required for end users
 
-## Quick Start
+## Installation
 
-### Prerequisites
+### Option 1: Download Installer (Recommended)
 
-- Python 3.7 or higher
-- pip (Python package manager)
+Download the latest installer for your platform from the [Releases](https://github.com/yourusername/pdftomp3/releases) page:
 
-### Installation
+| Platform | File | Notes |
+|----------|------|-------|
+| Windows  | `ConversorMP3_Setup_x.x.x.exe` | Run the installer, follow the wizard |
+| Ubuntu/Debian | `conversor-mp3_x.x.x_amd64.deb` | `sudo dpkg -i conversor-mp3_x.x.x_amd64.deb` |
+| macOS    | `ConversorMP3_x.x.x.dmg` | Drag to Applications folder |
+
+The installers bundle everything needed (including Python) - no extra setup required.
+
+### Option 2: Run from Source
+
+Requires Python 3.9+.
 
 ```bash
 # Clone the repository
@@ -66,11 +76,9 @@ streamlit run src/app.py
 
 The app will open automatically in your browser at `http://localhost:8501`
 
-### Windows Users
+#### Windows Users
 
-For convenience, Windows users can simply double-click [run.bat](run.bat) to start the application (requires Python to be installed).
-
-**Important**: If you encounter installation errors on Windows, please check [WINDOWS_INSTALL.md](WINDOWS_INSTALL.md) for troubleshooting solutions.
+For convenience, Windows users can double-click [run.bat](run.bat) to start the application (requires Python to be installed).
 
 ## Usage
 
@@ -99,23 +107,34 @@ For convenience, Windows users can simply double-click [run.bat](run.bat) to sta
 ```
 pdftomp3/
 ├── src/
-│   └── app.py              # Main Streamlit application
-├── images/                 # Screenshots for documentation
-│   ├── nova-conversao.png
-│   ├── fila-de-conversoes.png
-│   └── historico-de-conversoes.png
-├── output/                 # Generated MP3 files (git ignored)
-├── examples/               # Example PDFs
-├── requirements.txt        # Python dependencies
-├── .gitignore             # Git ignore rules
-├── LICENSE                # MIT License
-├── CHANGELOG.md           # Version history
-├── CONTRIBUTING.md        # Contribution guidelines
-├── PUBLISH.md             # GitHub publication guide
-├── run.bat                # Windows launcher script
-├── launcher.py            # Python launcher for executables
-├── build_exe.py           # Build Windows executable
-└── README.md              # This file
+│   ├── app.py                 # Main Streamlit application
+│   ├── config.py              # App configuration and constants
+│   ├── styles.py              # Custom CSS styles
+│   ├── types.py               # Data types (ConversionJob, etc.)
+│   ├── services/              # Business logic
+│   │   ├── conversion.py      # Conversion orchestration
+│   │   ├── pdf.py             # PDF text extraction
+│   │   └── tts.py             # Text-to-speech service
+│   └── selectors/             # State management
+│       ├── history.py         # Conversion history
+│       └── voices.py          # Voice selection
+├── scripts/
+│   ├── launcher.py            # Entry point for packaged executable
+│   └── build_exe.py           # Build script (PyInstaller)
+├── tests/                     # Unit tests
+├── assets/                    # App icons (ico, png, icns)
+├── installers/
+│   ├── windows/installer.iss  # Inno Setup script
+│   ├── linux/                 # .deb package scripts
+│   └── macos/                 # .dmg build script
+├── .github/workflows/         # CI/CD (GitHub Actions)
+├── conversor_mp3.spec         # PyInstaller spec file
+├── pyproject.toml             # Project metadata
+├── requirements.txt           # Python dependencies
+├── run.bat                    # Windows launcher script
+├── LICENSE                    # MIT License
+├── CHANGELOG.md               # Version history
+└── README.md                  # This file
 ```
 
 ## Technologies
@@ -126,19 +145,39 @@ pdftomp3/
 - **[Edge TTS](https://github.com/rany2/edge-tts)** - Neural text-to-speech
 - **[Pandas](https://pandas.pydata.org/)** - Data handling
 
-## Building Windows Executable
+## Building Installers
 
-To create a standalone Windows executable that doesn't require Python installation:
+### Local Build (Windows)
 
 ```bash
-# Install PyInstaller
+# Install build dependencies
 pip install pyinstaller
 
 # Build executable
-python build_exe.py
+python scripts/build_exe.py
+
+# Or directly with PyInstaller
+pyinstaller conversor_mp3.spec --noconfirm
 ```
 
-The executable will be created in the `dist/` folder.
+The app bundle will be created in `dist/ConversorMP3/`.
+
+To create the Windows installer, install [Inno Setup](https://jrsoftware.org/isinfo.php) and run:
+
+```bash
+iscc installers/windows/installer.iss
+```
+
+### Automated Build (CI/CD)
+
+Push a version tag to trigger builds for all platforms via GitHub Actions:
+
+```bash
+git tag v2.0.0
+git push origin v2.0.0
+```
+
+The workflow builds Windows (.exe), Ubuntu (.deb), and macOS (.dmg) installers and publishes them as a GitHub Release.
 
 ## Contributing
 
@@ -153,12 +192,10 @@ Contributions are welcome! Here's how you can help:
 ### Ideas for Contributions
 
 - Add support for more languages (English, Spanish, French, etc.)
-- Improve UI/UX design
-- Performance optimizations
-- Audio quality settings (speed, pitch)
+- Audio speed and pitch controls
 - Mobile-friendly interface
-- Add tests
-- Better documentation
+- Docker support
+- API endpoints
 
 ## License
 
@@ -175,21 +212,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Report bugs or request features in the [Issues](https://github.com/yourusername/pdftomp3/issues) section
 - Star this repo if you find it useful
 
-## Roadmap
-
-- [ ] Support for more languages (English, Spanish, French, etc.)
-- [ ] Audio speed control
-- [ ] Voice pitch adjustment
-- [ ] Background music option
-- [ ] Cloud storage integration
-- [ ] API endpoints
-- [ ] Docker support
-- [ ] Mobile app
-
 ---
 
 <div align="center">
 
-**Made with ❤️ for the open source community**
+**Made with Python for the open source community**
 
 </div>

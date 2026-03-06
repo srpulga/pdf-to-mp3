@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2026-03-06
+
+### Added
+- Cross-platform installers: Windows (.exe), Ubuntu (.deb), macOS (.dmg)
+- PyInstaller spec file with full Streamlit support (conversor_mp3.spec)
+- GitHub Actions CI/CD pipeline for automated builds
+- Inno Setup script for professional Windows installer
+- .deb packaging scripts for Ubuntu/Debian
+- create-dmg script for macOS disk image
+- Placeholder app icons for all platforms (assets/)
+- pyproject.toml with project metadata
+
+### Changed
+- Refactored project into modular architecture (services, selectors, config, types)
+- Moved launcher and build scripts to scripts/ directory
+- Launcher now uses streamlit.web.bootstrap.run() for frozen executable compatibility
+- Output directory resolves to ~/ConversorMP3/output/ when running as packaged app
+- Updated Python requirement to 3.9+ (dropped 3.7 support)
+
+### Technical
+- PyInstaller --onedir mode with Streamlit data files and metadata collection
+- Automated builds via GitHub Actions on tag push (v*)
+- Matrix builds across Windows, Ubuntu 22.04, and macOS
+
 ## [1.0.0] - 2024-11-29
 
 ### Added

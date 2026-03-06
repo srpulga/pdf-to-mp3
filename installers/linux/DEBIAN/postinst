@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+# Tornar o binario executavel
+chmod +x /usr/lib/conversor-mp3/ConversorMP3
+
+# Atualizar cache de icones
+if command -v gtk-update-icon-cache &> /dev/null; then
+    gtk-update-icon-cache -f -t /usr/share/icons/hicolor/ 2>/dev/null || true
+fi
+
+# Atualizar desktop database
+if command -v update-desktop-database &> /dev/null; then
+    update-desktop-database /usr/share/applications/ 2>/dev/null || true
+fi
+
+exit 0
