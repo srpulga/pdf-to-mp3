@@ -4,6 +4,13 @@ Este arquivo e usado como entry point para o executavel empacotado
 """
 import os
 import sys
+
+# IMPORTANTE: Forcar modo producao ANTES de qualquer import do Streamlit.
+# Sem isso, o Streamlit detecta developmentMode=True no PyInstaller
+# (porque __file__ nao contem "site-packages") e tenta conectar ao
+# servidor de desenvolvimento React em localhost:3000, causando 404.
+os.environ["STREAMLIT_GLOBAL_DEVELOPMENT_MODE"] = "false"
+
 import webbrowser
 import time
 from threading import Thread
@@ -49,13 +56,19 @@ def main():
     # Usar bootstrap.run() diretamente em vez de subprocess
     # Isso e essencial para funcionar quando empacotado com PyInstaller
     try:
-        from streamlit.web import bootstrap
+        from streamlit.web.bootstrap import load_config_options, run
         flag_options = {
+            "global.developmentMode": False,
             "server.headless": True,
             "browser.gatherUsageStats": False,
             "server.port": 8501,
         }
-        bootstrap.run(app_path, False, [], flag_options)
+        # Aplicar config ANTES de iniciar o servidor.
+        # bootstrap.run() nao aplica flag_options imediatamente — so registra
+        # um callback para recarregar. Sem esta chamada, o Streamlit usa os
+        # defaults e detecta developmentMode=True no PyInstaller.
+        load_config_options(flag_options)
+        run(app_path, False, [], flag_options)
     except KeyboardInterrupt:
         print("\nEncerrando aplicacao...")
     except Exception as e:
